@@ -1,7 +1,6 @@
 import time
 import random
 import pandas as pd
-from botnoi import scrape as sc
 import re
 import base64
 import requests
@@ -190,20 +189,30 @@ def delete_null(df):
     return(df)
 
 
+
+def find(stuff):
+    URL = f'https://yandex.com/images/search?text={stuff}'
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36'
+    r = requests.get(URL, headers={'User-Agent': user_agent})
+    url_contents = r.content
+    soup = BeautifulSoup(url_contents, 'html.parser')
+    img = soup.find_all('img')[1]
+    return img['src']
+
+
 def find_imageSRC(df):
     df["src"] = " "
     for i in range(len(df.index)):
         s = df.loc[i]['lyrics']
         words = list(map(str, s.split()))
         temp = random.choice(words)
-        img = sc.get_image_urls(temp, 1)
-        # break from img
-        selectedImg = img[1]
-        df.iloc[i, df.columns.get_loc('src')] = selectedImg
+        img = find(temp)
+        df.iloc[i, df.columns.get_loc('src')] = img
         #df.loc[i]['src'] = selectedImg
-        # print(i)
+        print(img)
         i = i+1
     return(df)
+
 
 
 def help(df):
